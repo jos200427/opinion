@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Criar Conteúdo - Opinion</title>
+  <link rel="stylesheet" href="style.css"/>
+
+  <style>
+    body {
+      background-color: #111;
+      color: white;
+      font-family: Arial, sans-serif;
+      padding: 20px;
+    }
+    h2 {
+      text-align: center;
+      margin-bottom: 30px;
+      color: #d62828;
+    }
+    form {
+      max-width: 600px;
+      margin: 0 auto;
+      background-color: #1a1a1a;
+      padding: 30px;
+      border-radius: 12px;
+    }
+    input, textarea {
+      width: 100%;
+      padding: 12px;
+      margin-bottom: 20px;
+      border: none;
+      border-radius: 8px;
+      font-size: 14px;
+      background-color: #333;
+      color: white;
+    }
+    button {
+      background-color: #d62828;
+      color: white;
+      border: none;
+      padding: 12px 20px;
+      font-weight: bold;
+      border-radius: 8px;
+      cursor: pointer;
+      width: 100%;
+    }
+    button:hover {
+      background-color: #b91c1c;
+    }
+  </style>
+</head>
+<body>
+  <h2>Criar Novo Conteúdo</h2>
+  <form id="formCriar">
+    <input type="text" id="titulo" placeholder="Título do conteúdo" required />
+    <textarea id="relato" rows="6" placeholder="Digite o relato ou história..." required></textarea>
+    <input type="url" id="link" placeholder="Link do vídeo ou imagem (ex: do postimages ou streamable)" required />
+    <button type="submit">Publicar</button>
+  </form>
+
+  <script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-app.js";
+  import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "SUA_API_KEY",
+    authDomain: "SUA_AUTH_DOMAIN",
+    projectId: "opinion-b3435",
+    storageBucket: "opinion-b3435.appspot.com",
+    messagingSenderId: "815007553160",
+    appId: "1:815007553160:web:5253161c91e9384e53313d"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+
+  document.getElementById("formCriar").addEventListener("submit", async function (e) {
+    e.preventDefault();
+
+    const titulo = document.getElementById("titulo").value.trim();
+    const relato = document.getElementById("relato").value.trim();
+    const link = document.getElementById("link").value.trim();
+
+    if (!titulo || !relato) {
+      alert("Preencha todos os campos obrigatórios.");
+      return;
+    }
+
+    try {
+      const docRef = await addDoc(collection(db, "conteudos"), {
+        titulo: titulo,
+        relato: relato,
+        link: link,
+        data: new Date()
+      });
+
+      alert("Conteúdo publicado!");
+      window.location.href = `post.html?id=${docRef.id}`; // Redireciona com ID do conteúdo
+    } catch (error) {
+      console.error("Erro ao salvar:", error);
+      alert("Erro ao publicar conteúdo.");
+    }
+  });
+</script>
+
+</body>
+</html>
