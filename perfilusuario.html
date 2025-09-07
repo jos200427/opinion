@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Perfil do Usuário - Opinion</title>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    body {
+      background-color: #111;
+      color: white;
+      font-family: Arial, Helvetica, sans-serif;
+      margin: 0;
+      padding: 20px;
+    }
+
+    .perfil-container {
+      max-width: 800px;
+      margin: 0 auto;
+      margin-top: 40px;
+      position: relative;
+    }
+
+    .card-perfil {
+      background-color: #111;
+      padding: 20px;
+      border-radius: 20px;
+      position: relative;
+    }
+
+    .avatar-nome {
+      display: flex;
+      align-items: flex-start;
+      gap: 20px;
+    }
+
+    .avatar-grande {
+      width: 100px;
+      height: 100px;
+      background-color: #000;
+      color: #fff;
+      border-radius: 50%;
+      font-size: 40px;
+      font-weight: bold;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .info-nome {
+      flex: 1;
+    }
+
+    .nome-retangulo {
+      background-color: #d62828;
+      color: white;
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-weight: bold;
+      margin-bottom: 10px;
+      display: inline-block;
+    }
+
+    .seguidores-curtidas {
+      background-color: #1c1c1c;
+      padding: 10px 15px;
+      border-radius: 8px;
+      display: flex;
+      gap: 30px;
+      color: white;
+      font-size: 14px;
+    }
+
+    .seguidores-curtidas span b {
+      color: gold;
+      font-size: 16px;
+    }
+
+    .botoes-perfil {
+      margin-top: 20px;
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .botoes-perfil button {
+      background-color: #d62828;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    .card-comentarios {
+      background-color: white;
+      color: #111;
+      padding: 20px;
+      border-radius: 20px;
+      position: absolute;
+      top: 280px;
+      width: 90%;
+      left: 50%;
+      transform: translateX(-50%);
+      box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+    }
+
+    .card-comentarios h3 {
+      margin-bottom: 20px;
+    }
+
+    .comentario {
+      background-color: #eee;
+      padding: 15px;
+      border-radius: 10px;
+      margin-bottom: 15px;
+    }
+
+    .comentario .likes {
+      color: darkred;
+      font-weight: bold;
+      font-size: 14px;
+      margin-top: 5px;
+      display: inline-block;
+    }
+
+  </style>
+</head>
+<body>
+  <header>
+    <span class="logo">OPINION</span>
+
+    <div class="search-container">
+      <input type="text" placeholder="Pesquisar" />
+    </div>
+
+    <div class="nav-links">
+      <a href="#">Tendências</a>
+      <a href="#">Rankings</a>
+    </div>
+  </header>
+
+  <main class="perfil-container">
+    <!-- CARD 1: Avatar e dados -->
+    <div class="card-perfil">
+      <div class="avatar-nome">
+        <div class="avatar-grande" id="avatarLetra">?</div>
+        <div class="info-nome">
+          <div class="nome-retangulo" id="nomeUsuario">Nome do Usuário</div>
+          <div class="seguidores-curtidas">
+            <span>Seguidores: <b>0</b></span>
+            <span>Adoro: <b>0</b></span>
+          </div>
+        </div>
+      </div>
+
+      <div class="botoes-perfil">
+        <button>Seguir</button>
+        <button>Mensagem</button>
+        <button>Conteúdos Criados</button>
+        <button>Histórico</button>
+      </div>
+    </div>
+
+    <!-- CARD 2: Comentários (estático por enquanto) -->
+    <div class="card-comentarios">
+      <h3>Comentários do usuário</h3>
+      <div class="comentario">
+        <p>Esse caso mostra que o artista Y foi incoerente no discurso dele.</p>
+        <span class="likes">❤️ 1.2K</span>
+      </div>
+      <div class="comentario">
+        <p>Eu acho que a produção podia ter sido melhor nesse videoclipe...</p>
+        <span class="likes">😂 560</span>
+      </div>
+    </div>
+  </main>
+
+  <!-- Firebase -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-app.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyBlK0ag7jRFFkej_B2vR1kn1lCB42qQn3Y",
+      authDomain: "opinion-b3435.firebaseapp.com",
+      projectId: "opinion-b3435",
+      storageBucket: "opinion-b3435.firebasestorage.app",
+      messagingSenderId: "815007553160",
+      appId: "1:815007553160:web:5253161c91e9384e53313d"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+
+    // Verifica se o usuário está logado
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        const nome = user.displayName || "Usuário";
+        const letra = nome.charAt(0).toUpperCase();
+
+        document.getElementById("nomeUsuario").textContent = nome;
+        document.getElementById("avatarLetra").textContent = letra;
+      } else {
+        // Redireciona para login se não estiver autenticado
+        window.location.href = "login.html";
+      }
+    });
+  </script>
+</body>
+</html>
