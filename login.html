@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Login - Opinion</title>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    body {
+      background-color: #111;
+      color: white;
+      font-family: Arial, Helvetica, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      padding: 20px;
+    }
+
+    .login-container {
+      background-color: #1a1a1a;
+      padding: 40px;
+      border-radius: 12px;
+      max-width: 400px;
+      width: 100%;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    }
+
+    .login-container h1 {
+      text-align: center;
+      margin-bottom: 30px;
+      font-size: 32px;
+      color: #d62828;
+    }
+
+    .login-container input {
+      width: 100%;
+      padding: 12px;
+      margin-bottom: 20px;
+      border: none;
+      border-radius: 8px;
+      background-color: #333;
+      color: white;
+      font-size: 14px;
+    }
+
+    .login-container button {
+      width: 100%;
+      background-color: #d62828;
+      color: white;
+      border: none;
+      padding: 12px;
+      font-weight: bold;
+      font-size: 16px;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    .login-container button:hover {
+      background-color: #b91c1c;
+    }
+
+    .login-container .link {
+      margin-top: 15px;
+      text-align: center;
+      font-size: 14px;
+    }
+
+    .login-container .link a {
+      color: #fff;
+      text-decoration: underline;
+    }
+
+    .error-msg {
+      color: red;
+      font-size: 14px;
+      text-align: center;
+      margin-bottom: 10px;
+    }
+  </style>
+</head>
+<body>
+    <div class="login-container">
+        <h1>OPINION</h1>
+
+        <div class="error-msg" id="erroLogin"></div>
+
+        <input type="email" id="email" placeholder="Digite seu e-mail" required/>
+        <input type="password" id="senha" placeholder="Digite sua senha" required/>
+
+        <button onclick="fazerLogin()">Entrar</button>
+
+        <div class="link">
+            Ainda não tem conta? <a href="registro.html">Criar conta</a>
+        </div>
+    </div>
+
+    <script type="module">
+    // Importa os SDKs necessários
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-app.js";
+    import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js";
+
+    // Sua configuração do Firebase
+    const firebaseConfig = {
+        apiKey: "AIzaSyBlK0ag7jRFFkej_B2vR1kn1lCB42qQn3Y",
+        authDomain: "opinion-b3435.firebaseapp.com",
+        projectId: "opinion-b3435",
+        storageBucket: "opinion-b3435.firebasestorage.app",
+        messagingSenderId: "815007553160",
+        appId: "1:815007553160:web:5253161c91e9384e53313d"
+    };
+
+    // Inicializa o Firebase
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+
+    // Função de login
+    window.fazerLogin = () => {
+        const email = document.getElementById("email").value;
+        const senha = document.getElementById("senha").value;
+        const erroMsg = document.getElementById("erroLogin");
+
+        signInWithEmailAndPassword(auth, email, senha)
+        .then((userCredential) => {
+            const user = userCredential.user;
+            window.location.href = "pagina2(todosvideos).html"; // Redireciona após login
+        })
+        .catch((error) => {
+            erroMsg.textContent = "Email ou senha inválidos. Tente novamente.";
+        });
+    };
+    </script>
+
+</body>
+</html>
