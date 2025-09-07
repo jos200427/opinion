@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
+  <title>Opinion</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header>
+    <span class="logo">OPINION</span>
+
+    <div class="search-container">
+      <input type="text" placeholder="Pesquisar">
+    </div>
+
+    <div class="nav-links">
+      <a href="#">Tendências</a>
+      <a href="#">Rankings</a>
+      <a href="login.html">Login</a>
+    </div>
+  </header>
+
+  <main>
+    <section class="trand">
+      <h2>O que está acontecendo? <a href="pagina2(todosvideos).html">Todos vídeos</a></h2>
+      <article>
+        <div class="novidades" id="novidades-container">
+          <!-- Conteúdos dinâmicos aqui -->
+        </div>
+      </article>
+    </section>
+
+    <section class="comentarios">
+      <h2>Comentários Destaque:</h2>
+      <article id="comentarios-destaque">
+        <!-- Comentários dinâmicos aqui -->
+      </article>
+    </section>
+  </main>
+
+  <script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-app.js";
+  import {
+    getFirestore,
+    collection,
+    getDocs,
+    query,
+    orderBy,
+    limit
+  } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "SUA_API_KEY",
+    authDomain: "opinion-b3435.firebaseapp.com",
+    projectId: "opinion-b3435",
+    storageBucket: "opinion-b3435.appspot.com",
+    messagingSenderId: "815007553160",
+    appId: "1:815007553160:web:5253161c91e9384e53313d"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+
+  const novidadesContainer = document.getElementById("novidades-container");
+  const comentariosContainer = document.getElementById("comentarios-destaque");
+  const campoPesquisa = document.querySelector(".search-container input");
+
+  async function buscarConteudos(filtro = "") {
+    novidadesContainer.innerHTML = "";
+
+    const conteudosRef = collection(db, "conteudos");
+    const snapshot = await getDocs(query(conteudosRef, orderBy("data", "desc")));
+
+    let encontrados = 0;
+
+    snapshot.forEach(doc => {
+      const data = doc.data();
+      const id = doc.id;
+      const titulo = data.titulo?.toLowerCase() || "";
+      const relato = data.relato?.toLowerCase() || "";
+      const termo = filtro.toLowerCase();
+
+      // Se filtro estiver vazio ou se bater no título ou relato, mostra o conteúdo
+      if (!termo || titulo.includes(termo) || relato.includes(termo)) {
+        encontrados++;
+
+        const card = document.createElement("div");
+        card.classList.add("novidade");
+
+        const midia = data.link?.includes(".mp4")
+          ? `<video style="height:300px" width="200px" controls poster=""><source src="${data.link}" type="video/mp4"></video>`
+          : `<img src="${data.link}" style="height:300px; width:200px; border-radius: 10px;" alt="imagem">`;
+
+        card.innerHTML = `
+          ${midia}
+          <h3>${data.titulo}</h3>
+          <a href="post.html?id=${id}"><button>Ver</button></a>
+        `;
+
+        novidadesContainer.appendChild(card);
+      }
+    });
+
+    if (encontrados === 0) {
+      novidadesContainer.innerHTML = "<p style='color: white;'>Nenhum conteúdo encontrado.</p>";
+    }
+  }
+
+  async function carregarComentarios() {
+    const conteudosRef = collection(db, "conteudos");
+    const conteudosSnap = await getDocs(conteudosRef);
+
+    let todosComentarios = [];
+
+    for (const conteudo of conteudosSnap.docs) {
+      const comentariosRef = collection(db, "conteudos", conteudo.id, "comentarios");
+      const comentariosSnap = await getDocs(comentariosRef);
+
+      comentariosSnap.forEach((comentarioDoc) => {
+        const data = comentarioDoc.data();
+        const total = (data.reacoes?.coracao || 0) + (data.reacoes?.risada || 0);
+
+        todosComentarios.push({
+          texto: data.texto || "",
+          autor: "U",
+          totalReacoes: total
+        });
+      });
+    }
+
+    comentariosContainer.innerHTML = "";
+
+    todosComentarios
+      .sort((a, b) => b.totalReacoes - a.totalReacoes)
+      .slice(0, 4)
+      .forEach(c => {
+        const comentarioEl = document.createElement("div");
+        comentarioEl.className = "comentario";
+        comentarioEl.innerHTML = `
+          <span class="avatar">${c.autor}</span>
+          <p>${c.texto}</p>
+          <span class="likes">❤️😂 ${c.totalReacoes}</span>
+        `;
+        comentariosContainer.appendChild(comentarioEl);
+      });
+  }
+
+  // Ao digitar na barra de pesquisa
+  campoPesquisa.addEventListener("input", () => {
+    const termo = campoPesquisa.value.trim();
+    buscarConteudos(termo);
+  });
+
+  // Inicialmente carrega tudo
+  buscarConteudos();
+  carregarComentarios();
+</script>
+
+</body>
+</html>
