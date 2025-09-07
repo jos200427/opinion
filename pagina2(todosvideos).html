@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="shortcut icon" href="favicon.ico" type="image/x-icon" />
+  <title>Opinion</title>
+  <link rel="stylesheet" href="style.css" />
+
+  <style>
+    .novidades {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 20px;
+      margin-top: 20px;
+    }
+
+    .novidade {
+      background-color: #222;
+      border-radius: 10px;
+      padding: 10px;
+    }
+
+    .novidade img,
+    .novidade video {
+      width: 100%;
+      height: 150px;
+      object-fit: cover;
+      border-radius: 8px;
+    }
+
+    .novidade h3 {
+      font-size: 15px;
+      margin: 10px 0;
+    }
+
+    .novidade button {
+      padding: 8px 15px;
+      background-color: #d62828;
+      border: none;
+      border-radius: 6px;
+      color: white;
+      cursor: pointer;
+    }
+
+    .escreva {
+      display: block;
+      margin: 30px auto;
+      padding: 12px 25px;
+      background-color: #d62828;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 15px;
+      cursor: pointer;
+    }
+
+    .escreva.hidden {
+      display: none;
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <span class="logo">OPINION</span>
+    <div class="search-container">
+      <input type="text" placeholder="Pesquisar" />
+    </div>
+    <div class="nav-links">
+      <a href="#">Tendências</a>
+      <a href="#">Rankings</a>
+      <a href="login.html">Login</a>
+      <a href="perfilusuario.html">Perfil</a>
+    </div>
+  </header>
+
+  <main>
+    <section class="trand">
+      <h2>O que está acontecendo?</h2>
+      <div class="novidades" id="novidades">
+        <!-- Conteúdos serão carregados automaticamente aqui -->
+      </div>
+
+      <button class="escreva hidden" id="botao-criar" onclick="window.location.href='criar.html'">
+        Criar
+      </button>
+    </section>
+  </main>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-app.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js";
+    import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyBlK0ag7jRFFkej_B2vR1kn1lCB42qQn3Y",
+      authDomain: "opinion-b3435.firebaseapp.com",
+      projectId: "opinion-b3435",
+      storageBucket: "opinion-b3435.appspot.com",
+      messagingSenderId: "815007553160",
+      appId: "1:815007553160:web:5253161c91e9384e53313d"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const auth = getAuth(app);
+
+    const novidadesDiv = document.getElementById("novidades");
+    const botaoCriar = document.getElementById("botao-criar");
+    const linkPerfil = document.querySelector('a[href="perfilusuario.html"]');
+
+    onAuthStateChanged(auth, (user) => {
+      if (!user) {
+        linkPerfil.style.display = "none";
+        botaoCriar.classList.add("hidden");
+      } else {
+        const emailAdmin = "iamjosefelix@gmail.com";
+        if (user.email === emailAdmin) {
+          botaoCriar.classList.remove("hidden");
+        } else {
+          botaoCriar.classList.add("hidden");
+        }
+      }
+    });
+
+    async function carregarConteudos() {
+      const querySnapshot = await getDocs(collection(db, "conteudos"));
+      querySnapshot.forEach((doc) => {
+        const data = doc.data();
+        const id = doc.id;
+
+        const card = document.createElement("div");
+        card.className = "novidade";
+
+        let midiaHTML = "";
+        if (data.link?.includes(".mp4")) {
+          midiaHTML = `<video src="${data.link}" muted controls></video>`;
+        } else if (data.link?.includes(".jpg") || data.link?.includes(".jpeg") || data.link?.includes(".png")) {
+          midiaHTML = `<img src="${data.link}" alt="Miniatura">`;
+        } else {
+          midiaHTML = `<div style="height:150px;background:#333;display:flex;align-items:center;justify-content:center;color:white;">Sem mídia</div>`;
+        }
+
+        card.innerHTML = `
+          ${midiaHTML}
+          <h3>${data.titulo || "Sem título"}</h3>
+          <a href="post.html?id=${id}"><button>Ver</button></a>
+        `;
+
+        novidadesDiv.appendChild(card);
+      });
+    }
+
+    carregarConteudos();
+  </script>
+</body>
+</html>
+
